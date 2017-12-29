@@ -12,6 +12,7 @@ class Application:
         # we want to select a particular Member, and a variable that will
         # point to our selected Member once chosen.
         self.__members = []
+        self.__matched_members = []
         self.__selected_index = -1
         self.__selected_member = None
 
@@ -52,16 +53,16 @@ class Application:
         frame.pack()
 
         frame = tkinter.Frame(self.__window)
-        self.__match_button = tkinter.Button(frame, text='Save Member', anchor=tkinter.W, command=self.match)
+        self.__match_button = tkinter.Button(frame, text='Match Members', anchor=tkinter.W, command=self.match)
         self.__match_button.pack(side='left')
         frame.pack()
 
-        # frame = tkinter.Frame(self.__window)
-        # label = tkinter.Label(frame, text='Matched Members')
-        # self.__matched_members_list = tkinter.Listbox(frame, width=120, selectmode=tkinter.NONE)
-        # label.pack()
-        # self.__matched_members_list.pack()
-        # frame.pack()
+        frame = tkinter.Frame(self.__window)
+        label = tkinter.Label(frame, text='Matched Members')
+        self.__matched_members_list = tkinter.Listbox(frame, width=120, selectmode=tkinter.NONE)
+        label.pack()
+        self.__matched_members_list.pack()
+        frame.pack()
 
     def build_input_frame(self, label, text_variable):
         """Build the top frames of the window for being able to enter data."""
@@ -148,16 +149,20 @@ class Application:
 
     def match(self):
         self.__matched_members_list = []
+        self.__matched_members = []
         local_members = []
+
         for person in self.__members:
             local_members.append(str(person))
 
         shuffle(local_members)
 
         for i in range(len(local_members)):
-            pair = '{} - {}'.format(local_members[i - 1], local_members[i])
-            print(pair)
-            # self.__matched_members_list.insert(tkinter.END, str(pair))
+            c = member.Pair(local_members[i-1], local_members[i])
+            self.__matched_members.append(c)
+            print(c)
+            # TODO: get matched members to display in a listbox
+            # self.__matched_members_list.insert(tkinter.END, str(c))
 
         self.after_selected_operation()
 
