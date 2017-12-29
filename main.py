@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import member
 import tkinter
+import tkinter.filedialog as filedialog
 
 from random import shuffle
 
@@ -20,10 +21,15 @@ class Application:
         # Create four StringVar objects to be bound to the Entry widgets
         self.__name = tkinter.StringVar()
 
-        # TODO: add buttons for load/save list from/to a file
+        frame = tkinter.Frame(self.__window)
+        self.__load_button = tkinter.Button(frame, text='Load Member File', anchor=tkinter.W, command=self.load_members)
+        self.__load_button.pack(side='left')
+        self.__save_button = tkinter.Button(frame, text='Save Member File', anchor=tkinter.W, command=self.save_members)
+        self.__save_button.pack(side='left')
+        frame.pack()
 
         # Build a Frame consisting of a Label and Entry widget for each field
-        self.build_input_frame('First Name: ', self.__name)
+        self.build_input_frame('Name: ', self.__name)
 
         # Build a new Frame and add three Buttons
         frame = tkinter.Frame(self.__window)
@@ -66,13 +72,45 @@ class Application:
         entry.pack(side='right')
         frame.pack()
 
+    def load_members(self):
+        members_file = filedialog.askopenfile(initialdir="C:/Users/Public/Documents", title="Open file",
+                                              filetypes=(("text files", "*.txt"), ("all files", "*.*")))
+        try:
+            for person in members_file:
+                c = member.Member(person[:-1])
+                self.__members.append(c)
+                self.__members_list.insert(tkinter.END, str(c))
+        except TypeError:
+            pass
+
+        try:
+            members_file.close()
+        except AttributeError:
+            pass
+        self.after_selected_operation()
+
+    def save_members(self):
+        members_file = filedialog.asksaveasfilename(initialdir="C:/Users/Public/Documents", title="Save file",
+                                                    filetypes=(("text files", "*.txt"), ("all files", "*.*")))
+        output_file = open(members_file, 'w')
+        for person in self.__members:
+            print(person)
+            output_file.write('{}\n'.format(person.get_name()))
+
+        try:
+            output_file.close()
+        except AttributeError and FileNotFoundError:
+            pass
+        self.after_selected_operation()
+
     def add_member(self):
         """Get the values from the bound variables and create a new Member."""
-        c = member.Member(self.__name.get())
-        self.__members.append(c)
+        if self.__name.get() != '':
+            c = member.Member(self.__name.get())
+            self.__members.append(c)
 
-        # Add this Member's __str__ output to the listbox
-        self.__members_list.insert(tkinter.END, str(c))
+            # Add this Member's __str__ output to the listbox
+            self.__members_list.insert(tkinter.END, str(c))
 
         self.after_selected_operation()
 
