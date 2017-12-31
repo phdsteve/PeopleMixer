@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import member
+import os
 import tkinter
 import tkinter.filedialog as filedialog
 
@@ -12,7 +13,6 @@ class Application:
         # we want to select a particular Member, and a variable that will
         # point to our selected Member once chosen.
         self.__members = []
-        self.__matched_members = []
         self.__selected_index = -1
         self.__selected_member = None
 
@@ -36,7 +36,8 @@ class Application:
         frame = tkinter.Frame(self.__window)
         self.__add_button = tkinter.Button(frame, text='Add Member', anchor=tkinter.W, command=self.add_member)
         self.__add_button.pack(side='left')
-        self.__delete_button = tkinter.Button(frame, text='Delete Member', anchor=tkinter.W, command=self.delete_member, state=tkinter.DISABLED)
+        self.__delete_button = tkinter.Button(frame, text='Delete Member', anchor=tkinter.W, command=self.delete_member,
+                                              state=tkinter.DISABLED)
         self.__delete_button.pack(side='left')
         frame.pack()
 
@@ -59,7 +60,7 @@ class Application:
 
         frame = tkinter.Frame(self.__window)
         label = tkinter.Label(frame, text='Matched Members')
-        self.__matched_members_list = tkinter.Listbox(frame, width=120, selectmode=tkinter.NONE)
+        self.__matched_members_list = tkinter.Listbox(frame, width=120)
         label.pack()
         self.__matched_members_list.pack()
         frame.pack()
@@ -74,7 +75,7 @@ class Application:
         frame.pack()
 
     def load_members(self):
-        members_file = filedialog.askopenfile(initialdir="C:/Users/Public/Documents", title="Open file",
+        members_file = filedialog.askopenfile(initialdir=os.getcwd(), title="Open file",
                                               filetypes=(("text files", "*.txt"), ("all files", "*.*")))
         try:
             for person in members_file:
@@ -88,20 +89,21 @@ class Application:
             members_file.close()
         except AttributeError:
             pass
+
         self.after_selected_operation()
 
     def save_members(self):
-        members_file = filedialog.asksaveasfilename(initialdir="C:/Users/Public/Documents", title="Save file",
+        members_file = filedialog.asksaveasfilename(initialdir=os.getcwd(), title="Save file",
                                                     filetypes=(("text files", "*.txt"), ("all files", "*.*")))
         output_file = open(members_file, 'w')
         for person in self.__members:
-            print(person)
             output_file.write('{}\n'.format(person.get_name()))
 
         try:
             output_file.close()
         except AttributeError and FileNotFoundError:
             pass
+
         self.after_selected_operation()
 
     def add_member(self):
@@ -149,20 +151,28 @@ class Application:
 
     def match(self):
         self.__matched_members_list = []
-        self.__matched_members = []
         local_members = []
+        matched_members = []
 
         for person in self.__members:
             local_members.append(str(person))
 
+        # Shuffle members three times
+        shuffle(local_members)
+        shuffle(local_members)
         shuffle(local_members)
 
+        print()
         for i in range(len(local_members)):
-            c = member.Pair(local_members[i-1], local_members[i])
-            self.__matched_members.append(c)
-            print(c)
+            c = (local_members[i - 1], local_members[i])
+            matched_members.append(c)
+            print('{} - {}'.format(c[0], c[1]))
             # TODO: get matched members to display in a listbox
-            # self.__matched_members_list.insert(tkinter.END, str(c))
+            try:
+                self.__matched_members_list.insert(tkinter.END, str('{} - {}'.format(c[0], c[1])))
+            except TypeError as e:
+                # print(e)
+                pass
 
         self.after_selected_operation()
 
